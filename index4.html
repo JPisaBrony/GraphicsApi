@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game Jam</title>
+    </head>
+    <style>
+    * { margin: 0; padding: 0;}
+
+    body, html { height:100%; }
+
+    #gamejam {
+        position:absolute;
+        width:100%;
+        height:100%;
+    }
+    </style>
+    <body>
+        <canvas id="gamejam">
+            Your browser doesnt support the canvas tag
+        </canvas>
+    </body>
+    <script>
+            var textureSize = 16, i, j;
+            var c = document.getElementById("gamejam");
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+            var grid = new Array();
+            c.width  = w;
+            c.height = h;
+            var ctx = c.getContext("2d");
+            
+            if(w < 400 || h < 400) {
+                document.writeln("Window size is too small");
+                exit();
+            }
+            
+            var img = new Image();
+            img.src = "sky-01.png";
+            for(i = 0; i < w+textureSize; i += textureSize) {
+                grid[i/textureSize] = new Array();
+                for(j = 0; j < h+textureSize; j += textureSize) {
+                    grid[Math.floor(i/textureSize)][Math.floor(j/textureSize)] = img;
+                }
+            }
+            
+            var img2 = new Image();
+            img2.src = "stone-01.png";
+            var s = 0;
+            if(w < h)
+                s = Math.floor(w/textureSize/2);
+            else
+                s = Math.floor(h/textureSize/2);
+            var square = rectangleBase(img2, s, s);
+            for(i = 0; i < s; i++) {
+                for(j = 0; j < s; j++) {
+                    if(i < j)
+                        square[i][j] = img2;
+                    else
+                        square[i][j] = img;
+                }
+            }
+            var s2 = 0;
+            if(w < h)
+                s2 = Math.floor(w/textureSize/2);
+            else
+                s2 = Math.floor(h/textureSize/2);
+            var inc = s2 - 1;
+            var square2 = rectangleBase(img2, s2, s2);
+            for(i = 0; i < s2; i++) {
+                for(j = 0; j < s2; j++) {
+                    if(j > inc)
+                        square2[i][j] = img2;
+                    else
+                        square2[i][j] = img;
+                }
+                inc--;
+            }
+            
+            /*
+            function checkAround(shape, comp, x, y) {
+                var out = false;
+                if(x > 0 && x < shape.length-1 && y > 0 && y < shape[0].length-1) {
+                    if(shape[x+1][y] == comp || shape[x-1][y] == comp
+                    || shape[x][y+1] == comp || shape[x][y-1] == comp)
+                    out = true;
+                }
+                else {
+                    if(x == 0) {
+                        
+                    }
+                    else if(x == shape.length-1) {
+                        
+                    }
+                }
+                return out;
+            }
+            */
+            
+            var img3 = new Image();
+            img3.src = "cloud-01.png";
+            function cloudDesign() {
+                var s3X = 5;
+                var s3Y = 3;
+                var startX = -10;
+                var rectObj1 = new Shape(startX, 0, s3X, s3Y, img);
+                var rect1 = rectObj1.getTiles();
+                crossBase(rect1, img3);
+                rect1[1][2] = img3;
+                rectObj1.setTiles(rect1);
+                
+                var rectObj2 = new Shape(startX, 0, s3X, s3Y, img);
+                var rect2 = rectObj2.getTiles();
+                crossBase(rect2, img3);
+                rect2[1][2] = img3;
+                rect2[0][2] = img3;
+                rect2[3][0] = img3;
+                rectObj2.setTiles(rect2);
+                
+                var rectObj3 = new Shape(startX, 0, s3X, s3Y, img);
+                var rect3 = rectObj3.getTiles();
+                crossBase(rect3, img3);
+                rect3[2][2] = img;
+                rect3[1][2] = img3;
+                rectObj3.setTiles(rect3);
+                
+                var out = new Array();
+                out[0] = rectObj1;
+                out[1] = rectObj2;
+                out[2] = rectObj3;
+                return out;
+            }
+            
+            function Shape(x, y, w, h, image) {
+                this.x = x;
+                this.y = y;
+                this.img = image;
+                this.tiles = rectangleBase(image, w, h);
+                this.getImg = function() {
+                    return this.img;
+                }
+                this.getX = function() {
+                    return this.x;
+                };
+                this.setX = function(x1) {
+                    this.x = x1;
+                };
+                this.incrementX = function() {
+                    this.x++;
+                }
+                this.getY = function() {
+                    return this.y;
+                };
+                this.setY = function(y1) {
+                    this.y = y1;
+                };
+                this.incrementY = function() {
+                    this.y++;
+                }
+                this.getW = function() {
+                    return this.tiles.length;
+                };
+                this.getH = function() {
+                    return this.tiles[0].length;
+                };
+                this.setTiles = function(t) {
+                    this.tiles = t;
+                };
+                this.getTiles = function () {
+                    return this.tiles;
+                };
+            }
+            
+            function copyShape(s) {
+                ret = new Shape(s.getX(), s.getY(), s.getW(), s.getH(), img);
+                ret.setTiles(s.getTiles());
+                return ret;
+            }
+            
+            var square3 = rectangleBase(img2, w/textureSize, h/textureSize);
+            
+            addTilesAtCords(square, 0, Math.floor(h/textureSize) - s + 1);
+            addTilesAtCords(square2, Math.floor(w/textureSize) - s2 + 1, Math.floor(h/textureSize) - s + 1);
+            
+            if(w < 600)
+                addTilesAtCords(square3, 0, Math.floor(h/textureSize) - Math.floor(h/textureSize/8));
+            else
+                addTilesAtCords(square3, 0, Math.floor(h/textureSize) - Math.floor(h/textureSize/4));
+            
+            var img4 = new Image();
+            var img5 = new Image();
+            img4.src = "stone-05.png";
+            img5.src = "black-01.png";
+            var hut = rectangleBase(img4, 3, 6);
+            hut[2][0] = img2;
+            hut[2][3] = img5;
+            hut[2][4] = img5;
+            hut[2][5] = img5;
+            addTilesAtCords(hut, 0, Math.floor(h/textureSize) - 5);
+            
+            var img6 = new Image();
+            img6.src = "sun-01.png";
+            var sun = rectangleBase(img6, 2, 2);
+            addTilesAtCords(sun, Math.floor(w/textureSize) - 3, 1);
+            
+            var speedX = -25;
+            var speedY = 6;
+            var height = 6;
+            var distance = 10;
+            var arr = cloudDesign();
+            setInterval(display, 100);
+            arr[0].setY(height);
+            arr[1].setY(height + 3);
+            arr[2].setY(height - 3);
+            var clouds = new Array();
+            var cloudInterval = 0;
+            function display() {
+                if(cloudInterval % 15 == 0) {
+                    var cloud = createNewCloud();
+                    clouds.unshift(cloud);
+                }
+                for(var k = 0; k < clouds.length; k++) {
+                    clouds[k].incrementX();
+                    animate(clouds[k].getTiles(), "right", clouds[k].getX(), clouds[k].getY());
+                }
+                cloudInterval++;
+                redrawGrid();
+            }
+            
+            function createNewCloud() {
+                var rand = Math.floor(Math.random() * 3);
+                switch(rand) {
+                    case 0:
+                        return copyShape(arr[0]);
+                        break;
+                    case 1:
+                        return copyShape(arr[1]);
+                        break;
+                    case 2:
+                        return copyShape(arr[2]);
+                        break;
+                }
+            }
+            
+            function animate(shape, dir, x, y) {
+                var emptySquare = rectangleBase(img, 5, 5);
+                switch(dir) {
+                    case "right":
+                        addTilesAtCords(emptySquare, x, y);
+                        addTilesAtCords(shape, x+1, y);
+                        break;
+                    case "down":
+                        addTilesAtCords(emptySquare, x, y);
+                        addTilesAtCords(shape, x, y+1);
+                        break;
+                    case "down-right":
+                        addTilesAtCords(emptySquare, x, y);
+                        addTilesAtCords(shape, x+1, y+1);
+                        break;
+                }
+            }
+            
+            function crossBase(shape, image) {
+                var a = new Array();
+                a = findCenter(shape);
+                shape[a[0]][a[1]] = image;
+                shape[a[0] + 1][a[1]] = image;
+                shape[a[0]][a[1] + 1] = image;
+                shape[a[0]][a[1] - 1] = image;
+                shape[a[0] - 1][a[1]] = image;
+            }
+            
+            function findCenter(shape) {
+                var arr = new Array();
+                arr[0] = Math.floor(shape.length/2);
+                arr[1] = Math.floor(shape[0].length/2);
+                return arr;
+            }
+            
+            function rectangleBase(image, sizeX, sizeY) {
+                var RectangleBase = new Array();
+                for(i = 0; i < sizeX; i++) {
+                    RectangleBase[i] = new Array();
+                    for(j = 0; j < sizeY; j++) {
+                        RectangleBase[i][j] = image;
+                    }
+                }
+                return RectangleBase;
+            }
+            
+            function addTilesAtCords(tiles, x, y) {
+                var y2 = y;
+                for(i = 0; i < tiles.length; i++) {
+                    for(j = 0; j < tiles[0].length; j++) {
+                        if(x > -1 && x < grid.length-1 && y > -1 && y < grid[0].length-1)
+                            grid[x][y2] = tiles[i][j];
+                        y2++;
+                    }
+                    x++;
+                    y2 = y;
+                }
+            }
+            
+            function redrawGrid() {
+                for(i = 0; i < w; i += textureSize) {
+                    for(j = 0; j < h; j += textureSize) {
+                        ctx.drawImage(grid[Math.floor(i/textureSize)][Math.floor(j/textureSize)], i, j);
+                    }
+                }
+            }
+            
+           img.onload = function() {
+           img2.onload = function() {
+           img3.onload = function() {
+           img4.onload = function() {
+           img5.onload = function() {
+           img6.onload = function() {
+                for(i = 0; i < w; i += textureSize) {
+                        for(j = 0; j < h; j += textureSize) {
+                            ctx.drawImage(grid[Math.floor(i/textureSize)][Math.floor(j/textureSize)], i, j);
+                        }
+                       }
+                     }
+                   }
+                 }
+               }
+              }
+            }
+    </script>
+</html>
