@@ -76,51 +76,31 @@
                 inc--;
             }
             
-            /*
-            function checkAround(shape, comp, x, y) {
-                var out = false;
-                if(x > 0 && x < shape.length-1 && y > 0 && y < shape[0].length-1) {
-                    if(shape[x+1][y] == comp || shape[x-1][y] == comp
-                    || shape[x][y+1] == comp || shape[x][y-1] == comp)
-                    out = true;
-                }
-                else {
-                    if(x == 0) {
-                        
-                    }
-                    else if(x == shape.length-1) {
-                        
-                    }
-                }
-                return out;
-            }
-            */
-            
             var img3 = new Image();
             img3.src = "cloud-01.png";
             function cloudDesign() {
-                var s3X = 5;
+                var s3X = 6;
                 var s3Y = 3;
                 var startX = -10;
                 var rectObj1 = new Shape(startX, 0, s3X, s3Y, img);
                 var rect1 = rectObj1.getTiles();
                 crossBase(rect1, img3);
-                rect1[1][2] = img3;
+                rect1[2][2] = img3;
                 rectObj1.setTiles(rect1);
                 
                 var rectObj2 = new Shape(startX, 0, s3X, s3Y, img);
                 var rect2 = rectObj2.getTiles();
                 crossBase(rect2, img3);
+                rect2[2][2] = img3;
                 rect2[1][2] = img3;
-                rect2[0][2] = img3;
-                rect2[3][0] = img3;
+                rect2[4][0] = img3;
                 rectObj2.setTiles(rect2);
                 
                 var rectObj3 = new Shape(startX, 0, s3X, s3Y, img);
                 var rect3 = rectObj3.getTiles();
                 crossBase(rect3, img3);
-                rect3[2][2] = img;
-                rect3[1][2] = img3;
+                rect3[3][2] = img;
+                rect3[2][2] = img3;
                 rectObj3.setTiles(rect3);
                 
                 var out = new Array();
@@ -220,45 +200,30 @@
                 }
                 for(var k = 0; k < clouds.length; k++) {
                     clouds[k].incrementX();
-                    animate(clouds[k].getTiles(), "right", clouds[k].getX(), clouds[k].getY());
+                    drawTilesAtCords(clouds[k].getTiles(), clouds[k].getX(), clouds[k].getY());
                 }
                 cloudInterval++;
-                redrawGrid();
             }
             
             function createNewCloud() {
-                var rand = Math.floor(Math.random() * 3);
-                switch(rand) {
+                var randHeight = Math.floor(Math.random() * 3);
+                var randCloud = Math.floor(Math.random() * 3);
+		switch(randHeight) {
                     case 0:
-                        return copyShape(arr[0]);
-                        break;
+                        arr[randCloud].setY(height);
+			return copyShape(arr[randCloud]);
+			break;
                     case 1:
-                        return copyShape(arr[1]);
-                        break;
+                        arr[randCloud].setY(height + 3);
+			return copyShape(arr[randCloud]);
+			break;
                     case 2:
-                        return copyShape(arr[2]);
-                        break;
-                }
+                        arr[randCloud].setY(height - 3);
+			return copyShape(arr[randCloud]);
+			break;
+		}
             }
-            
-            function animate(shape, dir, x, y) {
-                var emptySquare = rectangleBase(img, 5, 5);
-                switch(dir) {
-                    case "right":
-                        addTilesAtCords(emptySquare, x, y);
-                        addTilesAtCords(shape, x+1, y);
-                        break;
-                    case "down":
-                        addTilesAtCords(emptySquare, x, y);
-                        addTilesAtCords(shape, x, y+1);
-                        break;
-                    case "down-right":
-                        addTilesAtCords(emptySquare, x, y);
-                        addTilesAtCords(shape, x+1, y+1);
-                        break;
-                }
-            }
-            
+ 
             function crossBase(shape, image) {
                 var a = new Array();
                 a = findCenter(shape);
@@ -307,7 +272,20 @@
                     }
                 }
             }
-            
+	   
+            function drawTilesAtCords(tiles, x, y) {
+		var y2 = y;
+                for(i = 0; i < tiles.length; i++) {
+                    for(j = 0; j < tiles[0].length; j++) {
+                        if(x > -1 && x < grid.length-1 && y > -1 && y < grid[0].length-1)
+                       	    ctx.drawImage(tiles[i][j], x*textureSize, y2*textureSize);
+			y2++;
+                    }
+                    x++;
+                    y2 = y;
+                }
+            }    
+	 
            img.onload = function() {
            img2.onload = function() {
            img3.onload = function() {
